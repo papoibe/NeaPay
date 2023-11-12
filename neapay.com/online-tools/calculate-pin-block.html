@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Great tool to calculate and verify if you PIN block is corrrect, with 3DES encryption. Very useful tool together with the other payment tools">
+    <meta name="keywords" content="PIN, block, 3DES, payments">
+    <meta name="author" content="neaPay 2012">
+
+    <title>Calculate PIN block for ISO8583 payments</title>
+
+    <!-- Font Awesome Icons -->
+    <link href="https://neapay.com/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Google Fonts -->
+
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
+
+    <!-- Plugin CSS -->
+    <link href="https://neapay.com/vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+
+    <!-- Theme CSS - Includes Bootstrap -->
+    <link href="https://neapay.com/css/creative.min.css" rel="stylesheet">
+    <link href="https://neapay.com/css/custom.css" rel="stylesheet">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5TK8QBMCPF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-5TK8QBMCPF');
+    </script>
+    <script type="text/javascript">
+        (function(c, l, a, r, i, t, y) {
+            c[a] = c[a] || function() {
+                (c[a].q = c[a].q || []).push(arguments)
+            };
+            t = l.createElement(r);
+            t.async = 1;
+            t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0];
+            y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "g6c91kea1y");
+    </script>
+</head>
+
+<body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3" id="mainNav">
+    </nav>
+    <script data-ad-client="ca-pub-9341926909904448" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <section class="page-section " id="top">
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="col-md-2 d-none d-md-block  sidebar">
+                    <div class="sidebar-sticky">
+
+                        <ul class="nav navbar-nav">
+                        
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4 ">
+
+                    <div class="row">
+
+                        <h1>
+                            Calculate <b>PIN Block</b> for payments ISO8583 standard
+                        </h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 alert alert-info">
+                            <h2>Calculate PIN block here</h2>
+                            To calculate the PIN block you need the following data: <br /> Enter the 4 digit PIN number:<br /> <input type="text" id="textBoxPIN" class="form-control input-xlarge" placeholder="E.g.:1234"><br /> Enter the 16 or 19 digits
+                            card number:<br /> <input type="text" id="textBoxPAN" class="form-control input-xlarge" placeholder="E.g.:5720123412341234"><br /> Enter the 32 hex digits PIN Encryption Key:<br /> <input type="text" id="textBoxHexKey" class="form-control input-xlarge"
+                                placeholder="E.g.:12345678901234561234567890123456"><br /> Enter the PIN Block Filler character, 0 or F:<br /> <input type="text" id="textBoxHexFiller" class="form-control input-xlarge" placeholder="E.g.:F"><br />
+
+                            <button type="submit" class="btn btn-large btn-primary" onclick="calculateBlock()">Calculate PIN block</button>
+                            <br> <input type="text" id="pinBlock" class="form-control input-xlarge" placeholder="result">
+                        </div>
+                        
+                    </div>
+                    <br />
+                    <br />
+
+                </div>
+
+                <script type="text/javascript">
+                    var block = "";
+
+                    function calculateBlock() {
+                        getPinBlock(function(data) {
+                            block = data;
+
+                            console.log(block);
+                            document.getElementById('pinBlock').value = block;
+                        })
+                    }
+
+                    function getPinBlock(param) {
+                        var pinValue = document.getElementById('textBoxPIN').value;
+                        pinValue = (pinValue + "0000").substring(0, 4);
+                        document.getElementById('textBoxPIN').value = pinValue;
+                        console.log("pin:" + pinValue);
+
+
+
+                        var panValue = document.getElementById('textBoxPAN').value;
+                        if (panValue.length < 16)
+                            panValue = (panValue + "0000000000000000").substring(0, 16);
+                        if (panValue.length > 19)
+                            panValue = panValue.substring(0, 19);
+                        if (panValue.length > 16 && panValue.length < 19)
+                            panValue = panValue.substring(0, 16);
+                        document.getElementById('textBoxPAN').value = panValue;
+                        console.log("pan:" + panValue);
+
+                        var hexKeyValue = document.getElementById('textBoxHexKey').value;
+                        hexKeyValue = (hexKeyValue + "00000000000000000000000000000000").substring(0, 32);
+                        document.getElementById('textBoxHexKey').value = hexKeyValue;
+                        console.log("key:" + hexKeyValue);
+
+                        var hexFillValue = document.getElementById('textBoxHexFiller').value;
+                        hexFillValue = (hexFillValue + "F").substring(0, 1);
+                        document.getElementById('textBoxHexFiller').value = hexFillValue;
+                        console.log("fill:" + hexFillValue);
+
+                        var pinBlock1 = "";
+                        if (hexFillValue == "F")
+                            pinBlock1 = ("0" + pinValue.length + pinValue + "FFFFFFFFFFFFFFFF").slice(0, 16);
+                        if (hexFillValue == "0")
+                            pinBlock1 = ("1" + pinValue.length + pinValue + "0000000000000000").slice(0, 16);
+
+                        var panLen = panValue.length;
+                        var pinBlock2 = "0000" + panValue.slice(panLen - 13, panLen - 1);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "pin2.html",
+                            data: {
+                                "pin": pinValue,
+                                "pan": panValue,
+                                "key": hexKeyValue,
+                                "fill": hexFillValue,
+                                "pinBlock1": pinBlock1,
+                                "pinBlock2": pinBlock2
+                            }
+                        }).done(param);
+                    }
+                </script>
+            </div>
+    </section>
+
+    <!-- Articles Section -->
+
+    <section class="page-section" id="articles">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3> Pin - articles</h3>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class=" card-deck">
+                        <div class="card nobd shadow">
+                            <a class="cardLink" href="https://neapay.com/post/deploy-run-generate-card-data-generator_43.html">
+                                <div class="card-header nobg nobd">
+                                    <img src="https://neapay.com/res_blog/CardDataGenerator.jpg" class="card-img-top" alt="Deploy, run and generate with neaPay Card Data Generator" width="100%" height="180"> </div>
+                                <div class="card-body text-info  nobd">
+                                    <h3 class="card_title"><br/>Deploy, run and generate with neaPay Card Data Generator </h3>
+                                </div>
+                                <div class="card-footer nobg  nobd">When you receive a delivery from neaPay for an Card Data Generator, you will get 1 zip file.&nbsp; This step by step guide will guide you through the deployment process, which is as simple as using the software.&nbsp;Once
+                                    you have received and successfully deployed your ISO8583 Card Data Generator from neaPay, it is time to take it for a spin.&nbsp; ... </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Contact Section -->
+    <section class="page-section bg-light" id="contact">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="mt-0">Are you ready to start or need help?</h2>
+                    <hr class="divider my-4">
+                    <p class="text-muted mb-5">Ready to start your next project with us? Give us a call or send us an email and we will get back to you as soon as possible!</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 mr-auto text-center">
+                    <i class="fas fa-question fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted mb-0">Get a free quote, Ask for details, Get guidance
+                    </p>
+                    <br />
+                    <p>
+                        <a class="btn btn-primary btn-xl js-scroll-trigger" title="Ask a question or a quote from neapay" href="https://neapay.com/contact.html">Contact
+						us</a>
+                    </p>
+                </div>
+                <div class="col-lg-4 mr-auto text-center">
+                    <i class="fas fa-download fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted mb-0">Download and Use the software yourself</p>
+                    <br />
+                    <p>
+                        <a class="btn btn-primary btn-xl js-scroll-trigger" title="Download this software" href="#download">Download software</a>
+                    </p>
+                </div>
+                <div class="col-lg-4 mr-auto text-center">
+                    <i class="fab fa-readme fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted mb-0">Read Documentation and Start guides</p>
+                    <br />
+                    <p>
+                        <a class="btn btn-primary btn-xl js-scroll-trigger" title="Get Started tutorial and Documentation" href="https://neapay.com/viewposts.html?src=online-tools/calculate-pin-block.html">Get
+						started</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-top py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 ">
+                    <h4>
+                        <a href="https://neapay.com/index.html"> <i class="fas fa-home"></i>
+					</a> &nbsp; <a href="https://neapay.com/about-neapay.html?src=online-tools/calculate-pin-block.html">Company</a> &nbsp; <a href="https://neapay.com/contact.html?src=online-tools/calculate-pin-block.html">Contact</a>
+                    </h4>
+                    <p></p>
+                    <h2>Payments Solutions. Made Simple</h2>
+                    <br />
+                    <h4>Cloud based payments products and services</h4>
+                    <br />
+                    <h3>Simple ISO8483 conversion to JSON, SQL, TLV, SWIFT or any custom format
+                    </h3>
+                    <br />
+                    <h4>Integration with Base24, Alaric, Postilion, Way4 and other payment systems.</h4>
+                    <br />
+
+                    <p><a title="ISO8583 Payments simulator, Acquiring and Issuing" href="https://neapay.com/iso8583simulator.html">ISO8583 Simulator</a></p>
+                    <p><a title="ISO8583 to JSON Payments converter XML SQL" href="https://neapay.com/iso8583messageconverter.html">ISO8583 Converter</a></p>
+                    <p><a title="Payments Switch and routing ISO8583 BIN" href="https://neapay.com/payments-switch-routing.html">Switch Router</a></p>
+                    <p><a title="Payments ISO8583 verification, pres-screening, authorization" href="https://neapay.com/payments-authorization-host.html">Authorization Host</a></p>
+                    <p><a title="Cards Issuing, generating and Card Verification" href="https://neapay.com/payments-cards-issuing-host.html">Cards Issuing Host</a></p>
+                    <p><a title="POS SPDH HPDH Device Simulator" href="https://neapay.com/pos-simulator.html">POS Device Simulator</a></p>
+                    <p><a title="Hardware Security Module simulator, Virtual HSM" href="https://neapay.com/hardware-security-module-simulator.html">HSM Simulator</a></p>
+                    <p><a title="ISO20022 payments simulator" href="https://neapay.com/iso20022-payments-simulator.html">ISO20022 Simulator</a></p>
+                    <p><a title="Payments Acquiring from POS, ATM, WEB" href="https://neapay.com/payments-acquiring.html">Payments Acquiring</a></p>
+                    <p><a title="Test web apis functional regression performance" href="https://neapay.com/web-api-performance-test-simulator.html">Web Api Test Simulator</a></p>
+                    <p><a title="FREE ISO8583 payments simulator" href="https://neapay.com/free-payments-iso8583-simulator-tools.html">Free Payments Simulator</a></p>
+
+                </div>
+
+                <div class="col-lg-4 ">
+                    <h4>Payments Services</h4>
+                    <p><a title="Payments Consultancy Services" href="https://neapay.com/payments-consultancy-services.html">Consultancy Services</a></p>
+                    <p><a title="Payments Testing services" href="https://neapay.com/payments-iso8583-testing-services.html">Testing services</a></p>
+                    <p><a title="Web API Payments" href="https://neapay.com/api/index.html">Web API Payments</a></p>
+                    <p><a title="Cloud Payments" href="https://neapay.com/payments-cloud.html">Cloud Payments</a></p>
+                    <p><a title="Payments ISO8583 Message Conversion Service" href="https://neapay.com/payments-message-conversion.html">Payments Message Conversion</a></p>
+                    <p><a title="Payments Training Services" href="https://neapay.com/payments-iso8583-training-banking-services.html">Training Services</a></p>
+                    <div class="contentSeparator30">&nbsp;</div>
+
+                    <div class=" text-center">
+                        <p></p>
+                        <p>
+                            <a href="https://www.youtube.com/channel/UC_OtWqAdNoMDAVoOAJMaasw/" title="Visit youtube channel!"> <i class="fab fa-2x fa-youtube"></i>
+						</a> &nbsp; <a href="https://www.linkedin.com/company/neapay/" title="Check our LinkedIn posts"> <i class="fab  fa-2x fa-linkedin"></i>
+						</a> &nbsp; <a href="https://www.facebook.com/neapay.payments" title="Check our Facebook posts"> <i class="fab fa-2x fa-facebook-square"></i>
+						</a> &nbsp; <a href="https://twitter.com/neaPaycom" title="Check our Twitter posts"> <i class="fab fa-2x fa-twitter-square"></i>
+						</a> &nbsp;
+
+
+                        </p>
+                    </div>
+                    <br /> <br />
+                    <h5>Amsterdam Training Center</h5>
+                    Hoogoorddreef 9, 1101 BA Amsterdam<br />
+                    <h5>Almere, Netherlands</h5>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2439.3672151110527!2d4.941894915799619!3d52.309338779774826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c60b9a3b8a2ab5%3A0xf1afc97872a4b9ec!2sHoogoorddreef+9%2C+1101+BA+Amsterdam-Zuidoost!5e0!3m2!1sen!2snl!4v1496809589438"
+                        width="100%" height="200" frameborder="0" style="border: 0" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-lg-12  small text-center text-muted">
+                    Copyright &copy; 2012-2022 neaPay. The neaPay brand, web site data and content, products, training and material are all reserved, under ownership.
+                    <br /> All Rights Reserved. Content cannot be reproduced without written accord from neaPay.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://neapay.com/vendor/jquery/jquery.min.js"></script>
+    <script src="https://neapay.com/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="https://neapay.com/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="https://neapay.com/js/scrolling-nav.js"></script>
+    <script src="https://neapay.com/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+    <!-- Custom scripts for this template -->
+    <script src="https://neapay.com/js/creative.min.js"></script>
+    <script>
+        $(function() {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+</body>
+
+</html>
